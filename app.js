@@ -1,4 +1,4 @@
-var express = require("express");
+/*var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
 var io = require("socket.io").listen(server);
@@ -7,13 +7,23 @@ var ObjectId = require('mongodb').ObjectId;
 server.listen(process.env.PORT || 3001);
 var MongoClient = require('mongodb').MongoClient;
 var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27017,cluster0-shard-00-01-yiozv.mongodb.net:27017,cluster0-shard-00-02-yiozv.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
+//var url = "mongodb://localhost:27017/mydb";*/
+//var express = require("express");
+//var app = express();
+//var server = require("http").createServer(app);
+var io = require("socket.io")
+var fs = require("fs");
+var ObjectId = require('mongodb').ObjectId;
+//server.listen(process.env.PORT || 3001);
+var socket = io.listen(5555);
+var MongoClient = require('mongodb').MongoClient;
+var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27017,cluster0-shard-00-01-yiozv.mongodb.net:27017,cluster0-shard-00-02-yiozv.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
 //var url = "mongodb://localhost:27017/mydb";
 
 
 
-
 //console.log("connected");
-io.sockets.on('connection', function (socket) {
+socket.sockets.on('connection', function (socket) {
 console.log("connected");
 
 socket.on("client-send-data-from-result",function(data){
