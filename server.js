@@ -59,7 +59,7 @@ socket.on("client-send-data-from-result",function(data){
                         							}
 
                         							console.log(jsonObj);
-                  socket.emit('server-send-data-to-result',jsonObj);socket.disconnect(true);
+                  socket.emit('server-send-data-to-result',jsonObj);
                   db.close();
 
                 });
@@ -101,7 +101,7 @@ socket.on("client-send-data-from-result",function(data){
 
                                                                          db.collection("CompanyInfo").find({}).toArray(function(err, result) {
                                                                                                 if (err) throw err;
-                                                                                                console.log(result);socket.disconnect(true);
+                                                                                                console.log(result);
                                                                                               db.close();
                                                                                               });
 
@@ -170,7 +170,7 @@ socket.on("client-send-data-from-result",function(data){
                                               if (err) throw err;
                                               console.log(result);
                                               db.close();
-                                              socket.emit('server-send-data-to-Company-info',result[0]);socket.disconnect(true);
+                                              socket.emit('server-send-data-to-Company-info',result[0]);
                   });
                   });
 });
@@ -189,7 +189,7 @@ socket.on("client-send-data-from-result",function(data){
                                                       if (err) throw err;
                                                       console.log(result1);
                                                       socket.emit('server-send-data-to-detail-job2',result1[0]);
-                                                      db.close();socket.disconnect(true);
+                                                      db.close();
 
 
                                                });
@@ -228,7 +228,7 @@ socket.on("client-send-data-from-result",function(data){
 
               });
 
-        db.close();socket.disconnect(true);
+        db.close();
       });
 
     });
@@ -245,7 +245,7 @@ socket.on("client-send-data-from-cv-Apply1",function(data){
         if (err) throw err;
         console.log(result);
            socket.emit('server-send-data-to-apply1',result[0]);
-        db.close();socket.disconnect(true);
+        db.close();
       });
 
     });
@@ -289,7 +289,7 @@ console.log(data.Email);
                                                                                             							}
 
                                                                                             							console.log(jsonObj);
-                                                                                      socket.emit('server-send-data-to-joblistdang',jsonObj);socket.disconnect(true);
+                                                                                      socket.emit('server-send-data-to-joblistdang',jsonObj);
 
 
 
@@ -343,7 +343,7 @@ console.log(data.Email);
                   MongoClient.connect(uri, function(err, db) {
                     db.collection("Users").find({_id:ObjectId(data.IdUser)}).toArray(function(err, result) {
 
-                      socket.emit('server-send-data-to-placecall',result[0]);socket.disconnect(true);
+                      socket.emit('server-send-data-to-placecall',result[0]);
 
                     });
 
@@ -378,7 +378,7 @@ console.log(data.Email);
                                                                                       socket.emit("server-send-data-to-candilist",jsonObj);
                                                                                       console.log(jsonObj);
 
-                                                                                       db.close();socket.disconnect(true);
+                                                                                       db.close();
                                                                                      });
 
 
@@ -391,7 +391,7 @@ console.log(data.Email);
   //console.log("Co nguoi connect ne");
   socket.on("client-send-data",function(data){
   console.log(data);
-  console.log(data.user_id);socket.disconnect(true);
+  console.log(data.user_id);
   /*MongoClient.connect(uri, function(err, db) {
     if (err) throw err;
       db.collection("customers").find({}, { _id: false, name: true, address: true }).toArray(function(err, result) {
@@ -486,7 +486,7 @@ console.log(data.Email);
 
                                                                                   });
 
-                                              db.close();socket.disconnect(true);
+                                              db.close();
                                             });
 
 
