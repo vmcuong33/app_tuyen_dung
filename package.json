@@ -1,11 +1,15 @@
 {
   "name": "app_tuyen_dung",
   "version": "0.0.1",
+  "engines": {
+    "node": "6.2.0"
+},
   "private": "true",
   "dependencies": {
     "express": "*",
     "mongodb": "^2.2.33",
     "socket.io": "*",
+    "ejs": "~0.7.1",
     "socketio-file-upload": "^0.4.4"
   }
 }

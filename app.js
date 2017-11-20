@@ -1,37 +1,34 @@
-var express = require("express");
+/*var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
 var io = require("socket.io").listen(server);
 var fs = require("fs");
 var ObjectId = require('mongodb').ObjectId;
-server.listen(process.env.PORT || 3001);
+server.listen(process.env.PORT || 5000);
+var MongoClient = require('mongodb').MongoClient;
+var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27017,cluster0-shard-00-01-yiozv.mongodb.net:27017,cluster0-shard-00-02-yiozv.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
+//var url = "mongodb://localhost:27017/mydb";*/
+
+
+const express = require('express');
+const socketIO = require('socket.io');
+const path = require('path');
+
+const PORT = process.env.PORT || 3000;
+const INDEX = path.join(__dirname, 'index.html');
+
+const server = express()
+  .use((req, res) => res.sendFile(INDEX) )
+  .listen(PORT, () => console.log(`Listening on ${ PORT }`));
+
+const io = socketIO(server);
 var MongoClient = require('mongodb').MongoClient;
 var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27017,cluster0-shard-00-01-yiozv.mongodb.net:27017,cluster0-shard-00-02-yiozv.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
 //var url = "mongodb://localhost:27017/mydb";
 
-
-/*
-//var express = require("express");
-//var app = express();
-//var server = require("http").createServer(app);
-var http = require('http')
-, io   = require('socket.io');
-var app = http.createServer();
-app.listen(3001);
-var ObjectId = require('mongodb').ObjectId;
-//server.listen(process.env.PORT || 3001);
-var io = io.listen(app)
-, nicknames = {};
-var MongoClient = require('mongodb').MongoClient;
-var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27017,cluster0-shard-00-01-yiozv.mongodb.net:27017,cluster0-shard-00-02-yiozv.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
-//var url = "mongodb://localhost:27017/mydb";
-*/
-
-
-
-//console.log("connected");
-io.sockets.on('connection', function (socket) {
-console.log("connected");
+io.on('connection', (socket) => {
+console.log('Client connected');
+  socket.on('disconnect', () => console.log('Client disconnected'));
 
 socket.on("client-send-data-from-result",function(data){
                 console.log("result");
@@ -81,7 +78,7 @@ socket.on("client-send-data-from-result",function(data){
 
 
                       // lay id user hien tai
-                      // lay id cong ty cua user đó
+                      // lay id cong ty cua user ฤ‘รณ
                       // update thong tin cong ty
                        var query = { Email: data.Email };
 
@@ -509,3 +506,10 @@ console.log(data.Email);
    });
 
 });
+setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
+
+
+
+
+//console.log("connected");
+
