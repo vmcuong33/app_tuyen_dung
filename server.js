@@ -530,56 +530,11 @@ console.log(data.Email);
    });
 
 
-             console.log(data);
-             MongoClient.connect(uri, function(err, db) {
-             var query = { Email: data["Email"] };
-
-                   if (err) throw err;
-                   db.collection("Users").find(query).toArray(function(err, result) {
-                     if (err) throw err;
-
-                            console.log(result);
-                         delete data["Email"];
-                          var query = { iduser: result[0]._id };
-
-                                            if (err) throw err;
-                                            db.collection("CompanyInfo").find(query).toArray(function(err, result) {
-                                              if (err) throw err;
-
-
-                                                  data["IdCompany"]=result[0]._id;
-                                                  var myobj = data;
-                                                                 db.collection("Job").insertOne(myobj, function(err, res) {
-                                                                   if (err) throw err;
-                                                                   console.log("1 document inserted");
-                                                                   //db.close();
-                                                                 });
-                                                                 db.collection("Job").find({}).toArray(function(err, result) {
-                                                                                    if (err) throw err;
-                                                                                    console.log(result);
-
-                                                                                  });
-
-                                              db.close();
-                                            });
-
-
-
-                   });
-
-
-
-
-
-
-             });
-
-
 
 
    });
 
-});
+
 setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
 
 
