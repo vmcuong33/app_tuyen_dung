@@ -36,11 +36,32 @@ socket.on("client-send-data-from-result",function(data){
                 console.log(data.searchtext);
 
               MongoClient.connect(uri, function(err, db) {
+				  
               if (data.searchtext=="") var findquery={};
-              else {value ='\"' + data.searchtext + '\"'
-              var findquery={$text: {$search: value}};}
+              else {
+					value ='\"' + data.searchtext + '\"'
+					var findquery={$text: {$search: value}};
+					
+			  }
+					var newQuery = "Salary" ;
+					var newValue = { $gt: data.filter2 };
+					findquery[newQuery] = newValue ;
+					
+					if(data.filter1==1)
+					{
+						var newQuery = "Experience" ;
+					var newValue = "Khรดng cแบงn kinh nghiแปm";
+					findquery[newQuery] = newValue ;
+					}
+					var sortquery={'_id' : -1};
+					if(data.sort==1) {
+						sortquery={'Salary': -1,'_id' : -1};
+						
+					}
+					console.log();
+					
               //var findquery={};
-                   db.collection("Job").find(findquery).limit(10).sort({'_id': -1}).toArray(function(err, result) {
+                   db.collection("Job").find(findquery).limit(10).sort(sortquery).toArray(function(err, result) {
                   if (err) throw err;
                   console.log(result[0]);
                         var jsonObj = {
@@ -60,7 +81,7 @@ socket.on("client-send-data-from-result",function(data){
                         							}
 
                         							console.log(jsonObj);
-                  socket.emit('server-send-data-to-result',jsonObj);
+                  socket.emit('server-send-data-to-result',jsonObj);socket.disconnect(true);
                   db.close();
 
                 });
@@ -102,7 +123,7 @@ socket.on("client-send-data-from-result",function(data){
 
                                                                          db.collection("CompanyInfo").find({}).toArray(function(err, result) {
                                                                                                 if (err) throw err;
-                                                                                                console.log(result);
+                                                                                                console.log(result);socket.disconnect(true);
                                                                                               db.close();
                                                                                               });
 
@@ -171,7 +192,7 @@ socket.on("client-send-data-from-result",function(data){
                                               if (err) throw err;
                                               console.log(result);
                                               db.close();
-                                              socket.emit('server-send-data-to-Company-info',result[0]);
+                                              socket.emit('server-send-data-to-Company-info',result[0]);socket.disconnect(true);
                   });
                   });
 });
@@ -190,7 +211,7 @@ socket.on("client-send-data-from-result",function(data){
                                                       if (err) throw err;
                                                       console.log(result1);
                                                       socket.emit('server-send-data-to-detail-job2',result1[0]);
-                                                      db.close();
+                                                      db.close();socket.disconnect(true);
 
 
                                                });
@@ -229,7 +250,7 @@ socket.on("client-send-data-from-result",function(data){
 
               });
 
-        db.close();
+        db.close();socket.disconnect(true);
       });
 
     });
@@ -246,7 +267,7 @@ socket.on("client-send-data-from-cv-Apply1",function(data){
         if (err) throw err;
         console.log(result);
            socket.emit('server-send-data-to-apply1',result[0]);
-        db.close();
+        db.close();socket.disconnect(true);
       });
 
     });
@@ -290,7 +311,7 @@ console.log(data.Email);
                                                                                             							}
 
                                                                                             							console.log(jsonObj);
-                                                                                      socket.emit('server-send-data-to-joblistdang',jsonObj);
+                                                                                      socket.emit('server-send-data-to-joblistdang',jsonObj);socket.disconnect(true);
 
 
 
@@ -340,11 +361,11 @@ console.log(data.Email);
     });});
     socket.on("client-send-data-from-placecall",function(data){
 
-    console.log(data.Email);
+    console.log(data.IdUser);
                   MongoClient.connect(uri, function(err, db) {
                     db.collection("Users").find({_id:ObjectId(data.IdUser)}).toArray(function(err, result) {
 
-                      socket.emit('server-send-data-to-placecall',result[0]);
+                      socket.emit('server-send-data-to-placecall',result[0]);socket.disconnect(true);
 
                     });
 
@@ -379,7 +400,7 @@ console.log(data.Email);
                                                                                       socket.emit("server-send-data-to-candilist",jsonObj);
                                                                                       console.log(jsonObj);
 
-                                                                                       db.close();
+                                                                                       db.close();socket.disconnect(true);
                                                                                      });
 
 
@@ -392,7 +413,7 @@ console.log(data.Email);
   //console.log("Co nguoi connect ne");
   socket.on("client-send-data",function(data){
   console.log(data);
-  console.log(data.user_id);
+  console.log(data.user_id);socket.disconnect(true);
   /*MongoClient.connect(uri, function(err, db) {
     if (err) throw err;
       db.collection("customers").find({}, { _id: false, name: true, address: true }).toArray(function(err, result) {
@@ -455,6 +476,58 @@ console.log(data.Email);
     });
   /*io.sockets.emit('serverguitinnhan', { noidung: "okbaby" });*/
     socket.on("client-send-data-from-new-job",function(data){
+
+
+             console.log(data);
+             MongoClient.connect(uri, function(err, db) {
+             var query = { Email: data["Email"] };
+
+                   if (err) throw err;
+                   db.collection("Users").find(query).toArray(function(err, result) {
+                     if (err) throw err;
+
+                            console.log(result);
+                         delete data["Email"];
+                          var query = { iduser: result[0]._id };
+
+                                            if (err) throw err;
+                                            db.collection("CompanyInfo").find(query).toArray(function(err, result) {
+                                              if (err) throw err;
+
+
+                                                  data["IdCompany"]=result[0]._id;
+                                                  var num=Number(data["Salary"]);
+                                                  data["Salary"]=num;
+                                                  var myobj = data;
+                                                                 db.collection("Job").insertOne(myobj, function(err, res) {
+                                                                   if (err) throw err;
+                                                                   console.log("1 document inserted");
+                                                                   //db.close();
+                                                                 });
+                                                                 db.collection("Job").find({}).toArray(function(err, result) {
+                                                                                    if (err) throw err;
+                                                                                    console.log(result);
+
+                                                                                  });
+
+                                              db.close();socket.disconnect(true);
+                                            });
+
+
+
+                   });
+
+
+
+
+
+
+             });
+
+
+
+
+   });
 
 
              console.log(data);
