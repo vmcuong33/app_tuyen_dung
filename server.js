@@ -50,7 +50,7 @@ socket.on("client-send-data-from-result",function(data){
 					if(data.filter1==1)
 					{
 						var newQuery = "Experience" ;
-					var newValue = "Khรดng cแบงn kinh nghiแปm";
+					var newValue = /^K/;
 					findquery[newQuery] = newValue ;
 					}
 					var sortquery={'_id' : -1};
@@ -77,6 +77,8 @@ socket.on("client-send-data-from-result",function(data){
                         								var newJob = "Job" + i;
                         								var newValue = result[i];
                         								jsonObj[newJob] = newValue ;
+                        								jsonObj[newJob]["Month"] = result[i]._id.getTimestamp().getMonth();
+                        								jsonObj[newJob]["Day"] = result[i]._id.getTimestamp().getDate();
 
                         							}
 
@@ -91,6 +93,9 @@ socket.on("client-send-data-from-result",function(data){
 
     });
     });
+	
+	
+	
   socket.on("client-send-companyinfo",function(data){
         //console.log(data);
        // console.log(data.Name);
@@ -197,7 +202,51 @@ socket.on("client-send-data-from-result",function(data){
                   });
 });
 });
-  socket.on("client-send-data-from-detail-job",function(data){
+  socket.on("client-send-data-from-rating",function(data){
+
+
+            MongoClient.connect(uri, function(err, db) {
+                 var query = { _id: ObjectId(data.Id) };
+                 db.collection("CVs").find(query).toArray(function(err, result) {
+                     if (err) throw err;
+                     console.log(result);
+                     socket.emit('server-send-data-to-rating',result[0]);socket.disconnect(true);
+
+
+
+              });
+
+
+
+
+
+  });
+   });
+socket.on("client-send-data-from-rating2",function(data){
+
+
+
+console.log(data);
+MongoClient.connect(uri, function(err, db) {
+if (err) throw err;
+  var myquery = { _id: ObjectId(data._id) };
+  data._id=ObjectId(data._id);
+  data.IdUser=ObjectId(data.IdUser);
+  data.IdJob=ObjectId(data.IdJob);
+  var newvalues = data;
+  db.collection("CVs").updateOne(myquery, newvalues, function(err, res) {
+    if (err) throw err;
+    console.log("1 document updated");
+    db.close();socket.disconnect(true);
+  });
+
+});
+
+
+
+   });
+
+ socket.on("client-send-data-from-detail-job",function(data){
 
 
             MongoClient.connect(uri, function(err, db) {
@@ -225,8 +274,6 @@ socket.on("client-send-data-from-result",function(data){
 
   });
    });
-
-
     socket.on("client-send-data-from-cv-apply-job",function(data){
     x=ObjectId(data["IdJob"]);
     delete data["IdJob"];
@@ -243,6 +290,16 @@ socket.on("client-send-data-from-result",function(data){
             data["Name"]=result[0].Name;
             data["Age"]=result[0].Age;
             data["Sex"]=result[0].Sex;
+
+            data["Rating1"]=-1;
+            data["Rating2"]=-1;
+            data["Rating3"]=-1;
+            data["Rating4"]=-1;
+            data["Rating5"]=-1;
+            data["Rating6"]=-1;
+
+
+
             delete data["Email"];
             db.collection("CVs").insertOne(data, function(err, res) {
                 if (err) throw err;
@@ -374,6 +431,7 @@ console.log(data.Email);
 
         });});
   socket.on("client-send-data-from-candilist",function(data){
+  console.log(data.idjob);
     console.log(data.idjob);
                x=ObjectId(data.idjob);
 
@@ -381,7 +439,7 @@ console.log(data.Email);
 
                 db.collection("CVs").find({ IdJob:ObjectId(data.idjob) }).toArray(function(err, result) {
                                                                                        if (err) throw err;
-
+console.log(result);
                                                                                        var jsonObj = {
 
                                                                                                                                                                     							}
@@ -436,6 +494,7 @@ console.log(data.Email);
 
   });
   socket.on("client-send-data-from-login",function(data){
+  console.log(data)
   MongoClient.connect(uri, function(err, db) {
     var query = { Email: data.email };
       db.collection("Users").find(query).toArray(function(err, result) {
