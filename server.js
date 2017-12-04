@@ -250,23 +250,56 @@ if (err) throw err;
 
 
             MongoClient.connect(uri, function(err, db) {
-                 var query = { _id: ObjectId(data.idcongviec) };
-                 db.collection("Job").find(query).toArray(function(err, result) {
-                     if (err) throw err;
-                     console.log(result);
-                     socket.emit('server-send-data-to-detail-job',result[0]);
-                 var query = { _id: result[0].IdCompany };
-                                                  db.collection("CompanyInfo").find(query).toArray(function(err, result1) {
-                                                      if (err) throw err;
-                                                      console.log(result1);
-                                                      socket.emit('server-send-data-to-detail-job2',result1[0]);
-                                                      db.close();socket.disconnect(true);
+                var query = { Email: data["Email"] };
+
+                  if (err) throw err;
+                  db.collection("Users").find(query).toArray(function(err, result) {
+                    if (err) throw err;
+                    console.log(result);
+                       //socket.emit('server-send-data-to-apply1',result[0]);
+                       data["Email"]=result[0]._id;
+                       console.log(data["Email"]);
+                       console.log(data["Email"]);
+                                         var query = { IdJob: ObjectId(data.idcongviec),IdUser: data["Email"]};
+                                         db.collection("CVs").find(query).toArray(function(err, result) {
+                                                              if (err) throw err;
+                                                               if (result[0]==null) data["kq"]=1;else data["kq"]=0;
+                                                              /*if (data["Email"]==result[0].IdUser) result[0].applyable=1;
+                                                              else result[0].applyable=0;console.log(result);*/
+                                                              var query = { _id: ObjectId(data.idcongviec) };
+                                                                               db.collection("Job").find(query).toArray(function(err, result) {
+                                                                                   if (err) throw err;
+
+                                                                                   /*if (data["Email"]==result[0].IdUser) result[0].applyable=1;
+                                                                                   else result[0].applyable=0;console.log(result);*/
+                                                                                   result[0].kq=data["kq"];
+                                                                                   console.log(result)
+                                                                                   socket.emit('server-send-data-to-detail-job',result[0]);
+                                                                               var query = { _id: result[0].IdCompany };
+                                                                                                                db.collection("CompanyInfo").find(query).toArray(function(err, result1) {
+                                                                                                                    if (err) throw err;
+                                                                                                                    console.log(result1);
+                                                                                                                    socket.emit('server-send-data-to-detail-job2',result1[0]);
+                                                                                                                    db.close();socket.disconnect(true);
 
 
-                                               });
+                                                                                                             });
 
 
-              });
+                                                                            });
+
+
+
+
+
+
+
+                                                              });
+
+                  });
+
+
+
 
 
 
