@@ -255,7 +255,7 @@ if (err) throw err;
                   if (err) throw err;
                   db.collection("Users").find(query).toArray(function(err, result) {
                     if (err) throw err;
-                    console.log(result);
+                    //console.log(result);
                        //socket.emit('server-send-data-to-apply1',result[0]);
                        data["Email"]=result[0]._id;
                        console.log(data["Email"]);
