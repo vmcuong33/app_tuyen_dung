@@ -77,7 +77,7 @@ socket.on("client-send-data-from-result",function(data){
                         								var newJob = "Job" + i;
                         								var newValue = result[i];
                         								jsonObj[newJob] = newValue ;
-                        								jsonObj[newJob]["Month"] = result[i]._id.getTimestamp().getMonth();
+                        								jsonObj[newJob]["Month"] = result[i]._id.getTimestamp().getMonth()+1;
                         								jsonObj[newJob]["Day"] = result[i]._id.getTimestamp().getDate();
 
                         							}
