@@ -9,6 +9,7 @@ var MongoClient = require('mongodb').MongoClient;
 var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27017,cluster0-shard-00-01-yiozv.mongodb.net:27017,cluster0-shard-00-02-yiozv.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
 //var url = "mongodb://localhost:27017/mydb";*/
 
+const crypto = require('crypto');
 
 const express = require('express');
 const socketIO = require('socket.io');
@@ -28,7 +29,7 @@ var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27
 //var url = "mongodb://localhost:27017/mydb";
 
 io.on('connection', (socket) => {
-console.log('Client connected');
+
   socket.on('disconnect', () => console.log('Client disconnected'));
 
 socket.on("client-send-data-from-result",function(data){
@@ -94,7 +95,17 @@ socket.on("client-send-data-from-result",function(data){
     });
     });
 	
-	
+socket.on("client-send-data-from-sinch-service",function(data){
+    console.log(data);
+
+    var stringToSign =  data.Email+
+    "87eabcbc-988e-459e-b4d4-64fd55e1334a"+
+     0+
+     "Gy9GdqdjwUST8UyOZqFk+Q==";
+    console.log(crypto.createHash('sha1').update(stringToSign).digest('base64'));
+    data.key=crypto.createHash('sha1').update(stringToSign).digest('base64');
+    socket.emit("server-send-data-to-sinch-service",data);socket.disconnect(true);
+});
 	
   socket.on("client-send-companyinfo",function(data){
         //console.log(data);
@@ -501,7 +512,99 @@ console.log(result);
 
 
     });});
-  //console.log("Co nguoi connect ne");
+socket.on("client-send-data-from-call-end",function(data){
+                MongoClient.connect(uri, function(err, db) {
+                    //var query = { Email: data["Email"] };
+
+                      if (err) throw err;
+                     db.collection("CallHistory").insertOne(data, function(err, res) {
+                         if (err) throw err;
+                         console.log("1 document inserted");
+                        db.close;
+                       });
+
+                    });
+                console.log(data);
+
+
+            });
+            socket.on("client-send-data-from-signup",function(data){
+
+                            console.log(data);
+                            MongoClient.connect(uri, function(err, db) {
+
+                             var query = { Email: data.Email };
+                              db.collection("Users").find(query).toArray(function(err, result) {
+                                if (err) throw err;
+                                console.log(result);
+                                if(result.length==0){
+                                        console.log("ok");
+                                        db.collection("Users").insertOne(data, function(err, res) {
+                                            if (err) throw err;
+                                            console.log("1 document inserted");
+                                            db.close();
+                                          });
+                                          var obj={ketqua:1};
+                                          socket.emit("server-send-data-to-signup",obj);
+                                    }
+
+
+
+
+
+                                else {console.log("not ");var obj={ketqua:0};
+                                        socket.emit("server-send-data-to-signup",obj);}
+                              });
+
+                            });
+
+
+                        });
+            socket.on("client-send-data-from-call-his",function(data){
+                            MongoClient.connect(uri, function(err, db) {
+                                //var query = { Email: data["Email"] };
+                                    console.log(data)
+                                  var query = {  $or: [{Receiver: data.Email},{Caller:data.Email}] };
+                                  var sortquery={'_id' : -1};
+                                    db.collection("CallHistory").find(query).sort(sortquery).toArray(function(err, result) {
+                                      if (err) throw err;
+                                      console.log(result);
+                                      var jsonObj = {
+
+                                                                                                                   							}
+
+                                                              							var i;
+
+                                                              							for(i=0; ; i++){
+                                                              							if (result[i]==="null" || result[i]===null ||result[i]==="" || typeof result[i] === "undefined") {
+                                                                                                                                                                                                                              break;
+                                                                                                                                                                                                                          }
+                                                              								var newJob = "Call" + i;
+                                                              								month=result[i]._id.getTimestamp().getMonth()+1
+                                                                                                                                  result[i].Date=result[i]._id.getTimestamp().getHours()+
+                                                                                                                                            ":"+result[i]._id.getTimestamp().getMinutes()+
+                                                                                                                                            "  "+result[i]._id.getTimestamp().getDate()+
+                                                                                                                                            "/"+month+"/"+result[i]._id.getTimestamp().getFullYear();
+                                                              								var newValue = result[i];
+                                                              								jsonObj[newJob] = newValue ;
+
+
+                                                              							}
+
+
+
+                                      //result[0]._id.getTimestamp().getSeconds();
+
+
+                                      console.log(jsonObj);
+                                      socket.emit("server-send-data-to-call-his",jsonObj);
+                                      db.close();
+                                    });
+                                });
+
+
+
+                        });
   socket.on("client-send-data",function(data){
   console.log(data);
   console.log(data.user_id);socket.disconnect(true);
