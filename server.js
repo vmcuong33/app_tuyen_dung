@@ -94,7 +94,25 @@ socket.on("client-send-data-from-result",function(data){
 
     });
     });
-	
+/*socket.on("client-send-data-from-job-applied",function(data){
+        //console.log(data);
+       // console.log(data.Name);
+
+        MongoClient.connect(uri, function(err, db) {
+          if (err) throw err;
+
+
+
+                       var query = { Email: data.Email };
+
+
+
+                                            db.collection("Users").find(query).toArray(function(err, resultuser) {
+                                              if (err) throw err;
+                                              console.log(resultuser);// lay id user hien tai
+                                              });
+                                              });
+                                              });*/
 socket.on("client-send-data-from-sinch-service",function(data){
     console.log(data);
 
@@ -106,7 +124,96 @@ socket.on("client-send-data-from-sinch-service",function(data){
     data.key=crypto.createHash('sha1').update(stringToSign).digest('base64');
     socket.emit("server-send-data-to-sinch-service",data);socket.disconnect(true);
 });
-	
+	socket.on("client-send-data-from-settime",function(data){
+            //console.log(data);
+           // console.log(data.Name);
+
+            MongoClient.connect(uri, function(err, db) {
+              if (err) throw err;
+
+
+
+                           var query = { Email: data.Email };
+
+
+
+                                                db.collection("Users").find(query).toArray(function(err, resultuser) {
+                                                  if (err) throw err;
+                                                  console.log(resultuser);
+                                                  delete data["Email"];
+                                                  data["Employer"]=resultuser[0]._id;
+                                                  data["EmployerName"]=resultuser[0].Name;
+                                                  data["Candidate"]=ObjectId(data.Candidate);
+                                                  db.collection("Users").find({_id:data["Candidate"]}).toArray(function(err, result) {
+                                                  data["CandidateName"]=result[0].Name;console.log(data);
+                                                  db.collection("Messages").insertOne(data, function(err, res) {
+                                                                                                        if (err) throw err;
+                                                                                                        console.log("1 document inserted");
+                                                                                                        db.close();
+                                                                                                      });
+
+
+                                                  });
+                                                  // lay id user hien tai
+                                                   /**/
+
+                                                  });
+                                                  });
+                                                  });
+ socket.on("client-send-data-from-message",function(data){
+             //console.log(data);
+            // console.log(data.Name);
+
+             MongoClient.connect(uri, function(err, db) {
+               if (err) throw err;
+
+
+
+                            var query = { Email: data.Email };
+
+
+
+                                                 db.collection("Users").find(query).toArray(function(err, resultuser) {
+                                                   if (err) throw err;
+                                                   console.log(resultuser);
+                                                   delete data["Email"];
+                                                   data["iduser"]=resultuser[0]._id;
+                                                    var query = {  $or: [{Employer: data["iduser"]},{Candidate:data["iduser"]}] };
+                                                                                     var sortquery={'_id' : -1};
+                                                                                       db.collection("Messages").find(query).sort(sortquery).toArray(function(err, result) {
+                                                                                         if (err) throw err;
+                                                                                         console.log(result);
+                                                                                         var jsonObj = {
+
+                                                                                                                                                                      							}
+
+                                                                                                                 							var i;
+
+                                                                                                                 							for(i=0; ; i++){
+                                                                                                                 							var newJob = "Message" + i;
+                                                                                                                 							if (result[i]==="null" || result[i]===null ||result[i]==="" || typeof result[i] === "undefined") {break;}
+                                                                                                                                                                           var newValue = result[i];
+                                                                                                                                                                           jsonObj[newJob] = newValue ;
+
+
+                                                                                                                 							}
+                                                                                                                 							console.log(jsonObj);
+                                                                                                                 							socket.emit("server-send-data-to-message",jsonObj);socket.disconnect(true);
+                                                                                                                                                                                  //socket.emit("server-send-data-to-call-his",jsonObj);
+                                                                                                                                                                                  db.close();
+
+
+
+                                                                                         //result[0]._id.getTimestamp().getSeconds();
+
+
+
+
+                                                                                       });
+
+                                                   });
+                                                   });
+                                                   });
   socket.on("client-send-companyinfo",function(data){
         //console.log(data);
        // console.log(data.Name);
