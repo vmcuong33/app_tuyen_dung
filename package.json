@@ -13,10 +13,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ejs": "~0.7.1",
     "express": "*",
     "mongodb": "^2.2.33",
+    "node-schedule": "^1.2.5",
     "socket.io": "*",
-    "ejs": "~0.7.1",
     "socketio-file-upload": "^0.4.4"
   }
 }

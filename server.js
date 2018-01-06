@@ -27,6 +27,114 @@ const io = socketIO(server);
 var MongoClient = require('mongodb').MongoClient;
 var uri = "mongodb://vmcuong:abc123qwe@cluster0-shard-00-00-yiozv.mongodb.net:27017,cluster0-shard-00-01-yiozv.mongodb.net:27017,cluster0-shard-00-02-yiozv.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
 //var url = "mongodb://localhost:27017/mydb";
+var schedule = require('node-schedule');
+
+
+
+
+
+
+function routeToRoom(userId, passw, cb) {
+    var cb = new Array();var arrayInsert = new Array();
+   MongoClient.connect(uri, function(err, db) {
+       if (err) throw err;
+       db.collection("Users").find({Role:1}, { _id:true,Name: true, LocationRequest:true,SpecialityRequest:true  }).toArray(function(err, result) {
+         if (err) throw err;
+         //console.log(result);
+
+           cb[0]= result;
+           db.collection("Messages").find({type:1}, {  }).toArray(function(err, result) {
+                           if (err) throw err;
+                           console.log(result);
+                           if ( result.length >0) { cb[2]= result;}
+                           else {var arr = new Array();cb[2]=arr;}
+
+
+
+                           db.collection("Job").find({}, { _id:true,Title:true,Location: true,Speciality:true }).sort({_id:-1}).toArray(function(err, result) {
+                                        if (err) throw err;
+                                        //console.log(result);
+                                        cb[1]=result;
+
+                                       console.log(cb);
+                                       var maxi=cb[0].length;
+                                       var maxj=cb[1].length;
+
+                                       var maxv=cb[2].length;
+                                       //console.log(maxv);
+                                           for (var i=0;i<maxi;i++)
+                                           {
+                                               for(var j=0;j<maxj;j++)
+                                               {
+                                                   if(cb[0][i].SpecialityRequest==cb[1][j].Speciality
+                                                         && cb[0][i].LocationRequest==cb[1][j].Location)
+                                                         {     var exist=0;
+
+                                                               for (var v=0;v<maxv;v++ )
+                                                               {
+                                                                   if(cb[0][i]._id .equals(cb[2][v].iduser)
+                                                                           && cb[1][j]._id.equals(cb[2][v].idjob)) { exist=1;break;}
+                                                               }
+
+                                                               if (exist==0)
+                                                                   {
+                                                                       x={ iduser:cb[0][i]._id,
+                                                                           NameUser:cb[0][i].Name,
+                                                                           idjob:cb[1][j]._id,
+                                                                           TitleJob:cb[1][j].Title,
+                                                                           type:1
+
+                                                                       };
+                                                                       arrayInsert.push(x);
+                                                                       console.log(i+" "+j);break;
+                                                                   }
+
+                                                         }
+                                               }
+                                           }
+
+
+                                           console.log(arrayInsert);
+
+                                           db.collection("Messages").insertMany(arrayInsert, function(err, res) {
+                                               if (err) throw err;
+                                               console.log("Number of documents inserted: " + res.insertedCount);
+
+                                             });
+                                             db.collection("Messages").find({}).toArray(function(err, result) {
+                                                                          if (err) throw err;
+                                                                          console.log(result);
+                                                                          db.close();
+                                                                        });
+                                      });
+
+
+
+                         });
+
+
+       });
+
+
+
+
+
+
+
+
+
+
+
+     });
+
+}
+
+var j = schedule.scheduleJob('00 12 * * *', function(){
+  console.log('The answer to life, the universe, and everything!');
+routeToRoom("alex", "123", function(id) {
+
+});
+});
 
 io.on('connection', (socket) => {
 
@@ -178,7 +286,7 @@ socket.on("client-send-data-from-sinch-service",function(data){
                                                    console.log(resultuser);
                                                    delete data["Email"];
                                                    data["iduser"]=resultuser[0]._id;
-                                                    var query = {  $or: [{Employer: data["iduser"]},{Candidate:data["iduser"]}] };
+                                                    var query = {  $or: [{Employer: data["iduser"]},{Candidate:data["iduser"]}],type:0 };
                                                                                      var sortquery={'_id' : -1};
                                                                                        db.collection("Messages").find(query).sort(sortquery).toArray(function(err, result) {
                                                                                          if (err) throw err;
