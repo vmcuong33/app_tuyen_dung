@@ -82,6 +82,8 @@ function routeToRoom(userId, passw, cb) {
                                                                            NameUser:cb[0][i].Name,
                                                                            idjob:cb[1][j]._id,
                                                                            TitleJob:cb[1][j].Title,
+                                                                           Location:cb[1][j].Location,
+                                                                           Speciality:cb[1][j].Speciality,
                                                                            type:1
 
                                                                        };
@@ -322,6 +324,60 @@ socket.on("client-send-data-from-sinch-service",function(data){
                                                    });
                                                    });
                                                    });
+
+  socket.on("client-send-data-from-job-rec",function(data){
+               //console.log(data);
+              // console.log(data.Name);
+
+               MongoClient.connect(uri, function(err, db) {
+                 if (err) throw err;
+
+
+
+                              var query = { Email: data.Email };
+
+
+
+                                                   db.collection("Users").find(query).toArray(function(err, resultuser) {
+                                                     if (err) throw err;
+                                                     console.log(resultuser);
+                                                     delete data["Email"];
+                                                     data["iduser"]=resultuser[0]._id;
+
+                                                      var query = {  type:1,iduser:data["iduser"] };
+                                                                                       var sortquery={'_id' : -1,};
+                                                                                         db.collection("Messages").find(query).sort(sortquery).toArray(function(err, result) {
+                                                                                           if (err) throw err;
+
+                                                                                                    var jsonObj = {};
+
+                                                                                                                 							var i;
+
+                                                                                                                 							for(i=0; ; i++){
+                                                                                                                 							var newJob = "Message" + i;
+                                                                                                                 							if (result[i]==="null" || result[i]===null ||result[i]==="" || typeof result[i] === "undefined") {break;}
+                                                                                                                                                                           var newValue = result[i];
+                                                                                                                                                                           jsonObj[newJob] = newValue ;
+
+
+                                                                                                                 							}   console.log(jsonObj);
+
+                                                                                                                   							socket.emit("server-send-data-to-job-rec",jsonObj);socket.disconnect(true);
+                                                                                                                                                                                    //socket.emit("server-send-data-to-call-his",jsonObj);
+                                                                                                                                                                                    db.close();
+
+
+
+                                                                                           //result[0]._id.getTimestamp().getSeconds();
+
+
+
+
+                                                                                         });
+
+                                                     });
+                                                     });
+                                                     });
   socket.on("client-send-companyinfo",function(data){
         //console.log(data);
        // console.log(data.Name);
