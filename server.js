@@ -270,6 +270,36 @@ socket.on("client-send-data-from-sinch-service",function(data){
                                                   });
                                                   });
                                                   });
+
+socket.on("client-send-data-from-updaterec",function(data){
+            console.log(data);
+           // console.log(data.Name);
+
+            MongoClient.connect(uri, function(err, db) {
+              if (err) throw err;
+
+
+
+                           var query = { Email: data.Email };
+
+
+
+                                                db.collection("Users").find(query).toArray(function(err, resultuser) {
+                                                  if (err) throw err;
+
+                                                  resultuser[0].LocationRequest=data.Location;
+                                                  resultuser[0].SpecialityRequest=data.Speciality;
+                                                    console.log(resultuser);
+                                                    var myquery = { _id: resultuser[0]._id };
+                                                      var newvalues = resultuser[0];
+                                                      db.collection("Users").updateOne(myquery, newvalues, function(err, res) {
+                                                        if (err) throw err;
+                                                        console.log("1 document updated");
+                                                        db.close();
+                                                      });
+                                                  //delete data["Email"];
+
+                                                  });});});
  socket.on("client-send-data-from-message",function(data){
              //console.log(data);
             // console.log(data.Name);
@@ -921,6 +951,7 @@ socket.on("client-send-data-from-call-end",function(data){
                                     {
 
                                         jsonObj.Ketqua="1",
+                                        jsonObj.LocationRequest=result[0].LocationRequest,
                                         jsonObj.Name=result[0].Name,
                                         jsonObj.Id=result[0]._id,
                                         jsonObj.Email=result[0].Email,
